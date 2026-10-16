@@ -1,27 +1,38 @@
-# PulseboardWeb
+# pulseboard-web
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.8.
+The Angular 17 monorepo for the Pulseboard UI. It uses the Angular CLI workspace layout: one app plus a shared library.
 
-## Development server
+```
+projects/
+  pulseboard/     the app: pages, routing, shell, styles
+  data-access/    the library: API client, models, session, WebSocket events, meta and toast services
+```
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## Pages
+| Route | Page |
+|---|---|
+| `/sign-in` | Demo sign-in |
+| `/` | Overview board: alerts first, live updates |
+| `/boards` | My boards: search, filter by kind, pagination |
+| `/boards/:id` | Detail or briefing board |
+| `/metrics` | Metric catalog: search, filter, sort, pagination, create, edit, delete |
+| `/activity` | Setup and review jobs, filterable, refreshes live |
+| `/setup` | Setup assistant chat (streamed over SSE) |
 
-## Code scaffolding
+Nothing environment-specific is compiled in:
+- API URLs come from `/config.json` at runtime.
+- Menus, units, areas and page sizes come from `GET /api/v1/meta`.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Run
+```bash
+npm install
+npx ng serve pulseboard --port 5173     # expects the API on http://localhost:8000
+```
+To point at another API, edit `projects/pulseboard/public/config.json`.
 
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+## Docker
+```bash
+docker build -t pulseboard-web .
+docker run -p 8080:8080 -e API_URL=http://localhost:8000 -e WS_URL=ws://localhost:8000/ws/events pulseboard-web
+```
+To run the full stack (Postgres, Redis, mock SQS, API and UI), use `docker compose up --build` in `pulseboard-api`.

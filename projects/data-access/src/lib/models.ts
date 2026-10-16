@@ -57,7 +57,7 @@ export interface BoardEvent {
   version?: number;
 }
 
-export type MetricUnit = 'USD' | '%' | 'x' | 'pts' | 'days' | 'tickets';
+export type MetricUnit = string;
 
 export interface Metric {
   key: string;
@@ -79,7 +79,7 @@ export interface Page<T> {
   page: number;
   size: number;
   pages: number;
-  cached: boolean;
+  cached?: boolean;
 }
 
 export interface MetricQuery {
@@ -89,4 +89,32 @@ export interface MetricQuery {
   size: number;
   sort: 'key' | 'title' | 'area' | 'updated_at';
   desc: boolean;
+}
+
+export interface Meta {
+  regions: string[];
+  units: string[];
+  areas: string[];
+  page_sizes: number[];
+  board_kinds: string[];
+  job_types: string[];
+  job_statuses: string[];
+  follow_ups: string[];
+}
+
+export interface BoardSummary extends Board {
+  tile_count: number;
+  alert_count: number;
+  updated_at: string;
+}
+
+export interface Job {
+  id: string;
+  job_type_cd: string;
+  status_cd: string;
+  board_id: string | null;
+  error: string | null;
+  enqueued_at: string | null;
+  started_at: string;
+  finished_at: string | null;
 }

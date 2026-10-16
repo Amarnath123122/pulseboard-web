@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PULSEBOARD_CONFIG } from './config';
-import { Board, FollowUp, Metric, MetricQuery, Page, StreamEvent, Tile, TileData } from './models';
+import { Board, BoardSummary, FollowUp, Job, Meta, Metric, MetricQuery, Page, StreamEvent, Tile, TileData } from './models';
 import { SessionService } from './session.service';
 
 @Injectable({ providedIn: 'root' })
@@ -41,10 +41,26 @@ export class ApiService {
     return this.http.patch<Tile>(this.url(`/api/v1/tiles/${encodeURIComponent(id)}/follow-up`), { follow_up_cd });
   }
 
-  metrics(query: MetricQuery): Observable<Page<Metric>> {
+  meta(): Observable<Meta> {
+    return this.http.get<Meta>(this.url('/api/v1/meta'));
+  }
+
+  boards(query: { q?: string; kind?: string; page: number; size: number }): Observable<Page<BoardSummary>> {
+    return this.http.get<Page<BoardSummary>>(this.url('/api/v1/boards'), { params: this.params(query) });
+  }
+
+  jobs(query: { job_type?: string; status?: string; page: number; size: number }): Observable<Page<Job>> {
+    return this.http.get<Page<Job>>(this.url('/api/v1/jobs'), { params: this.params(query) });
+  }
+
+  private params(query: object): HttpParams {
     let params = new HttpParams();
-    for (const [k, v] of Object.entries(query)) if (v !== undefined && v !== '') params = params.set(k, String(v));
-    return this.http.get<Page<Metric>>(this.url('/api/v1/metrics'), { params });
+    for (const [k, v] of Object.entries(query)) if (v !== undefined && v !== null && v !== '') params = params.set(k, String(v));
+    return params;
+  }
+
+  metrics(query: MetricQuery): Observable<Page<Metric>> {
+    return this.http.get<Page<Metric>>(this.url('/api/v1/metrics'), { params: this.params(query) });
   }
 
   metricAreas(): Observable<string[]> {
