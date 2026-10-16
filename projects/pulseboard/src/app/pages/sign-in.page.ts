@@ -10,7 +10,7 @@ import { ApiService, SessionService } from 'data-access';
   template: `
     <section class="page narrow">
       <h1>Pulseboard</h1>
-      <p class="muted">Demo sign-in. Enter any user ID.</p>
+      <p class="muted">Your metrics, watched for you. Sign in with any user ID. Each ID gets its own boards, so use the same one to come back to your data.</p>
       <form class="stack" (ngSubmit)="submit()">
         <label>User ID <input name="userId" [(ngModel)]="userId" required pattern="[A-Za-z0-9_.@-]+" /></label>
         <button class="primary" [disabled]="busy()">Sign in</button>

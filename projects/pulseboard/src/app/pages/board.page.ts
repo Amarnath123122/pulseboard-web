@@ -33,7 +33,9 @@ import { TileCardComponent } from './tile-card.component';
           </span>
         </div>
 
+        <p class="muted hint">{{ hints[b.kind_cd] }}</p>
         @if (b.kind_cd === 'OVERVIEW') {
+          <div class="legend"><span><i style="background:var(--bad)"></i>High priority</span><span><i style="background:var(--warn)"></i>Medium priority</span><span>› opens details</span></div>
           <p class="muted">{{ b.settings['team'] }} · watching {{ b.settings['areas']?.join(', ') }} · region {{ b.settings['region'] }}</p>
         }
         @if (b.kind_cd === 'BRIEFING') {
@@ -78,6 +80,11 @@ export class BoardPage {
   readonly alerts = computed(() => this.tiles().filter((t) => t.tier_cd === 'ALERT'));
   readonly others = computed(() => this.tiles().filter((t) => t.tier_cd !== 'ALERT'));
   private poll?: ReturnType<typeof setTimeout>;
+  readonly hints: Record<string, string> = {
+    OVERVIEW: 'Metrics that need attention are listed first. Open an alert for its trend and briefing, then mark it seen or done.',
+    DETAIL: 'The last 12 weeks, the split by region, and where the metric is heading.',
+    BRIEFING: 'What changed, who owns it, and suggested next steps.',
+  };
   get b(): Board {
     return this.board()!;
   }

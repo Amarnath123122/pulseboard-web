@@ -17,7 +17,7 @@ const blank = (): Metric => ({
   template: `
     <section class="page">
       <div class="page-head">
-        <h1>Metric catalog</h1>
+        <div><h1>Metric catalog</h1><p class="muted">The metrics the assistant can watch. Changes apply to boards at their next review.</p></div>
         <button class="primary" (click)="startCreate()">+ New metric</button>
       </div>
 
