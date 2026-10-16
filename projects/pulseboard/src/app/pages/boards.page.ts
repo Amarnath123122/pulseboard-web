@@ -34,7 +34,7 @@ import { PagerComponent } from './pager.component';
                   <td>{{ b.tile_count }}</td>
                   <td>@if (b.alert_count) { <span class="chip high">{{ b.alert_count }}</span> } @else { – }</td>
                   <td>v{{ b.version }}</td>
-                  <td class="muted">{{ b.updated_at + 'Z' | date: 'medium' }}</td>
+                  <td class="muted">{{ b.updated_at | date: 'medium' }}</td>
                 </tr>
               } @empty {
                 <tr><td colspan="6" class="empty">No boards yet. <a routerLink="/setup">Run the setup assistant</a> to create one.</td></tr>

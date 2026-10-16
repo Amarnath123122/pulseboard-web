@@ -36,3 +36,7 @@ docker build -t pulseboard-web .
 docker run -p 8080:8080 -e API_URL=http://localhost:8000 -e WS_URL=ws://localhost:8000/ws/events pulseboard-web
 ```
 To run the full stack (Postgres, Redis, mock SQS, API and UI), use `docker compose up --build` in `pulseboard-api`.
+
+## CI/CD (GitHub Actions)
+- **`ci.yml`** runs on every push: `npm ci`, the app build, the library build, then the Docker image build.
+- **`deploy.yml`** builds once, writes `config.json` from the repo variables `API_URL` and `WS_URL`, then uploads to Azure Static Web Apps. It's skipped until those variables and the `AZURE_STATIC_WEB_APPS_API_TOKEN` secret are set.

@@ -29,7 +29,7 @@ import { TileCardComponent } from './tile-card.component';
         <div class="page-head">
           <h1>{{ b.title }}</h1>
           <span class="muted">version {{ b.version }}
-            @if (b.next_review_at) { · next review {{ b.next_review_at + 'Z' | date: 'shortTime' }} }
+            @if (b.next_review_at) { · next review {{ b.next_review_at | date: 'shortTime' }} }
           </span>
         </div>
 

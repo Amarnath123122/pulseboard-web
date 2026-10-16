@@ -3,10 +3,12 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
+    "start": "ng serve pulseboard --port 5173",
+    "build": "ng build pulseboard --configuration production",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "build:lib": "ng build data-access",
+    "lint": "ng build pulseboard --configuration development"
   },
   "private": true,
   "dependencies": {

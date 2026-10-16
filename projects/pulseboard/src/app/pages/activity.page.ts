@@ -33,7 +33,7 @@ import { PagerComponent } from './pager.component';
                 <tr>
                   <td>{{ j.job_type_cd.toLowerCase() }}</td>
                   <td><span class="status {{ j.status_cd.toLowerCase() }}">{{ j.status_cd.toLowerCase() }}</span></td>
-                  <td class="muted">{{ j.started_at + 'Z' | date: 'medium' }}</td>
+                  <td class="muted">{{ j.started_at | date: 'medium' }}</td>
                   <td>{{ took(j) }}</td>
                   <td>@if (j.board_id) { <a routerLink="/">overview</a> } @else { – }</td>
                   <td class="muted">{{ j.error ?? '' }}</td>
@@ -79,7 +79,7 @@ export class ActivityPage implements OnInit {
 
   took(j: Job): string {
     if (!j.finished_at) return 'running…';
-    const ms = new Date(j.finished_at + 'Z').getTime() - new Date(j.started_at + 'Z').getTime();
+    const ms = new Date(j.finished_at).getTime() - new Date(j.started_at).getTime();
     return ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} s`;
   }
 }

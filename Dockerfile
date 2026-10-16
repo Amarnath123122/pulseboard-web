@@ -4,7 +4,7 @@ WORKDIR /src
 COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY . .
-RUN npx ng build pulseboard --configuration production
+RUN npm run build
 
 FROM nginxinc/nginx-unprivileged:1.27-alpine
 USER root

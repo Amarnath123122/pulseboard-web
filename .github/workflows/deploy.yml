@@ -1,0 +1,27 @@
+# Deploys the UI to Azure Static Web Apps on pushes to main. Skipped until Azure is configured:
+#   secret    AZURE_STATIC_WEB_APPS_API_TOKEN
+#   variables API_URL (https://<api>.azurewebsites.net), WS_URL (wss://<api>.azurewebsites.net/ws/events)
+name: deploy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  deploy:
+    if: ${{ vars.API_URL != '' }}
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - name: Runtime config for this environment
+        run: printf '{ "apiUrl": "%s", "wsUrl": "%s" }\n' "${{ vars.API_URL }}" "${{ vars.WS_URL }}" > dist/pulseboard/browser/config.json
+      - uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: upload
+          app_location: dist/pulseboard/browser
+          skip_app_build: true
