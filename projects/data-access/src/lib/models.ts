@@ -56,3 +56,37 @@ export interface BoardEvent {
   boardId?: string;
   version?: number;
 }
+
+export type MetricUnit = 'USD' | '%' | 'x' | 'pts' | 'days' | 'tickets';
+
+export interface Metric {
+  key: string;
+  area: string;
+  title: string;
+  unit: MetricUnit;
+  base: number;
+  volatility: number;
+  higher_is_better: boolean;
+  owners: string[];
+  sources: string[];
+  enabled: boolean;
+  updated_at?: string | null;
+}
+
+export interface Page<T> {
+  items: T[];
+  total: number;
+  page: number;
+  size: number;
+  pages: number;
+  cached: boolean;
+}
+
+export interface MetricQuery {
+  q?: string;
+  area?: string;
+  page: number;
+  size: number;
+  sort: 'key' | 'title' | 'area' | 'updated_at';
+  desc: boolean;
+}

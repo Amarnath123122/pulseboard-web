@@ -8,6 +8,7 @@ const signedIn: CanActivateFn = () =>
 export const routes: Routes = [
   { path: 'sign-in', loadComponent: () => import('./pages/sign-in.page').then((m) => m.SignInPage) },
   { path: 'setup', canActivate: [signedIn], loadComponent: () => import('./pages/setup.page').then((m) => m.SetupPage) },
+  { path: 'metrics', canActivate: [signedIn], loadComponent: () => import('./pages/metrics.page').then((m) => m.MetricsPage) },
   { path: 'boards/:id', canActivate: [signedIn], loadComponent: () => import('./pages/board.page').then((m) => m.BoardPage) },
   { path: '', pathMatch: 'full', canActivate: [signedIn], loadComponent: () => import('./pages/board.page').then((m) => m.BoardPage) },
   { path: '**', redirectTo: '' },

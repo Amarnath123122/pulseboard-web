@@ -13,6 +13,7 @@ import { LiveEventsService, SessionService } from 'data-access';
         <div class="row">
           <a routerLink="/">Overview</a>
           <a routerLink="/setup">Setup</a>
+          <a routerLink="/metrics">Metrics</a>
           <span class="dot" [class.on]="live.connected()" [title]="live.connected() ? 'Live' : 'Reconnecting'"></span>
           <span class="muted">{{ session.userId() }}</span>
           <button (click)="signOut()">Sign out</button>

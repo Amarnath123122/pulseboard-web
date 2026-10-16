@@ -1,8 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PULSEBOARD_CONFIG } from './config';
-import { Board, FollowUp, StreamEvent, Tile, TileData } from './models';
+import { Board, FollowUp, Metric, MetricQuery, Page, StreamEvent, Tile, TileData } from './models';
 import { SessionService } from './session.service';
 
 @Injectable({ providedIn: 'root' })
@@ -39,6 +39,28 @@ export class ApiService {
 
   setFollowUp(id: string, follow_up_cd: FollowUp): Observable<Tile> {
     return this.http.patch<Tile>(this.url(`/api/v1/tiles/${encodeURIComponent(id)}/follow-up`), { follow_up_cd });
+  }
+
+  metrics(query: MetricQuery): Observable<Page<Metric>> {
+    let params = new HttpParams();
+    for (const [k, v] of Object.entries(query)) if (v !== undefined && v !== '') params = params.set(k, String(v));
+    return this.http.get<Page<Metric>>(this.url('/api/v1/metrics'), { params });
+  }
+
+  metricAreas(): Observable<string[]> {
+    return this.http.get<string[]>(this.url('/api/v1/metrics/areas'));
+  }
+
+  createMetric(m: Metric): Observable<Metric> {
+    return this.http.post<Metric>(this.url('/api/v1/metrics'), m);
+  }
+
+  updateMetric(key: string, m: Omit<Metric, 'key'>): Observable<Metric> {
+    return this.http.put<Metric>(this.url(`/api/v1/metrics/${encodeURIComponent(key)}`), m);
+  }
+
+  deleteMetric(key: string): Observable<void> {
+    return this.http.delete<void>(this.url(`/api/v1/metrics/${encodeURIComponent(key)}`));
   }
 
   /** One assistant turn. HttpClient can't stream a POST response, so this reads the SSE stream with fetch. */
