@@ -24,7 +24,7 @@ import { TileCardComponent } from './tile-card.component';
         </div>
       } @else {
         <nav class="crumbs">
-          @if (b.parent_board_id) { <a routerLink="/">← Overview</a> } @else { <a routerLink="/setup">← Setup</a> <span>· Overview</span> }
+          @if (b.parent_board_id) { <a routerLink="/">Overview</a> › <span>{{ b.kind_cd === 'DETAIL' ? 'Detail' : 'Briefing' }}</span> } @else { <span>Overview</span> }
         </nav>
         <div class="page-head">
           <h1>{{ b.title }}</h1>
