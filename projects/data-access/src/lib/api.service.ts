@@ -33,6 +33,10 @@ export class ApiService {
     return this.http.get<Tile[]>(this.url(`/api/v1/boards/${encodeURIComponent(id)}/tiles`));
   }
 
+  boardTileData(boardId: string): Observable<TileData[]> {
+    return this.http.get<TileData[]>(this.url('/api/v1/boards/' + encodeURIComponent(boardId) + '/tile-data'));
+  }
+
   tileData(id: string): Observable<TileData> {
     return this.http.get<TileData>(this.url(`/api/v1/tiles/${encodeURIComponent(id)}/data`));
   }

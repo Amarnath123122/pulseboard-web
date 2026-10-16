@@ -121,13 +121,12 @@ export class BoardPage {
         }
         this.api.tiles(b.id).subscribe((tiles) => {
           this.tiles.set(tiles);
-          for (const t of tiles) {
-            this.api.tileData(t.id).subscribe({
-              next: (d) => this.data.update((m) => ({ ...m, [t.id]: d })),
-              error: () =>
-                this.data.update((m) => ({ ...m, [t.id]: { tile_id: t.id, status: 'ERROR', result: null, error: 'request failed' } })),
-            });
-          }
+          // One request for every tile on the board (the API batches the queries and the cache reads).
+          this.api.boardTileData(b.id).subscribe({
+            next: (all) => this.data.set(Object.fromEntries(all.map((d) => [d.tile_id, d]))),
+            error: () =>
+              this.data.set(Object.fromEntries(tiles.map((t) => [t.id, { tile_id: t.id, status: 'ERROR' as const, result: null, error: 'request failed' }]))),
+          });
         });
       },
       error: (e: HttpErrorResponse) => {
