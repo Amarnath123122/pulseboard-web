@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PULSEBOARD_CONFIG } from './config';
 import { Board, BoardSummary, FollowUp, Job, Meta, Metric, MetricQuery, Page, StreamEvent, Tile, TileData } from './models';
+import { AuthService } from './auth.service';
 import { SessionService } from './session.service';
 
 @Injectable({ providedIn: 'root' })
@@ -10,15 +11,10 @@ export class ApiService {
   private readonly http = inject(HttpClient);
   private readonly config = inject(PULSEBOARD_CONFIG);
   private readonly session = inject(SessionService);
+  private readonly auth = inject(AuthService);
 
   private url(path: string): string {
     return `${this.config.apiUrl}${path}`;
-  }
-
-  signIn(userId: string): Observable<{ access_token: string; user_id: string }> {
-    return this.http.post<{ access_token: string; user_id: string }>(this.url('/api/v1/auth/dev-token'), {
-      user_id: userId,
-    });
   }
 
   overview(): Observable<Board> {
@@ -89,11 +85,14 @@ export class ApiService {
     action: string;
     text?: string;
   }): AsyncGenerator<StreamEvent> {
-    const res = await fetch(this.url('/api/v1/assistant/messages'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.session.token()}` },
-      body: JSON.stringify(body),
-    });
+    const post = (token: string | null) =>
+      fetch(this.url('/api/v1/assistant/messages'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(body),
+      });
+    let res = await post(this.session.token());
+    if (res.status === 401) res = await post(await this.auth.freshToken()); // fetch bypasses the interceptor
     if (!res.ok || !res.body) {
       const err = await res.json().catch(() => null);
       throw new Error(err?.error?.message ?? 'The assistant is unavailable');

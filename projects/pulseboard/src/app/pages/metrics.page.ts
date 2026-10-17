@@ -1,7 +1,7 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ApiService, MetaService, Metric, MetricQuery, Page, ToastService } from 'data-access';
+import { ApiService, MetaService, Metric, MetricQuery, Page, SessionService, ToastService } from 'data-access';
 import { PagerComponent } from './pager.component';
 import { Subject, debounceTime } from 'rxjs';
 
@@ -18,7 +18,7 @@ const blank = (): Metric => ({
     <section class="page">
       <div class="page-head">
         <div><h1>Metric catalog</h1><p class="muted">The metrics the assistant can watch. Changes apply to boards at their next review.</p></div>
-        <button class="primary" (click)="startCreate()">+ New metric</button>
+        @if (canWrite()) { <button class="primary" (click)="startCreate()">+ New metric</button> } @else { <span class="tag" title="Ask an admin for the Editor role">read-only</span> }
       </div>
 
       <div class="toolbar">
@@ -78,12 +78,14 @@ const blank = (): Metric => ({
                   <td>{{ m.higher_is_better ? '↑ higher' : '↓ lower' }}</td>
                   <td>{{ m.enabled ? 'yes' : 'no' }}</td>
                   <td class="row">
+                    @if (canWrite()) {
                     <button (click)="startEdit(m)">Edit</button>
                     @if (confirming() === m.key) {
                       <button class="danger" (click)="remove(m.key)">Confirm delete</button>
                       <button (click)="confirming.set(null)">Keep</button>
                     } @else {
                       <button (click)="confirming.set(m.key)">Delete</button>
+                    }
                     }
                   </td>
                 </tr>
@@ -102,6 +104,8 @@ const blank = (): Metric => ({
 export class MetricsPage implements OnInit {
   private readonly api = inject(ApiService);
   readonly meta = inject(MetaService);
+  private readonly session = inject(SessionService);
+  readonly canWrite = computed(() => (this.session.user(), this.session.can('metrics:write')));
   private readonly toast = inject(ToastService);
   readonly columns = [
     { key: 'key', label: 'Key', sort: 'key' as const },

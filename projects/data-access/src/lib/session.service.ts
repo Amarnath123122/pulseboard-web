@@ -1,20 +1,42 @@
 import { Injectable, computed, signal } from '@angular/core';
 
-const KEY = 'pb.session';
+export interface SessionUser {
+  id: string;
+  email: string;
+  display_name: string;
+  role: string;
+  permissions: string[];
+}
 
+export interface AuthSession {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+  user: SessionUser;
+}
+
+const KEY = 'pb.auth';
+
+/** The signed-in user and tokens. The access token is short-lived; the refresh token rotates on every use. */
 @Injectable({ providedIn: 'root' })
 export class SessionService {
-  private readonly state = signal<{ token: string; userId: string } | null>(this.load());
-  readonly token = computed(() => this.state()?.token ?? null);
-  readonly userId = computed(() => this.state()?.userId ?? null);
+  private readonly state = signal<AuthSession | null>(this.load());
+  readonly token = computed(() => this.state()?.access_token ?? null);
+  readonly refreshToken = computed(() => this.state()?.refresh_token ?? null);
+  readonly user = computed(() => this.state()?.user ?? null);
+  readonly userId = computed(() => this.state()?.user.display_name ?? null);
   readonly signedIn = computed(() => this.state() !== null);
 
-  set(token: string, userId: string): void {
-    this.state.set({ token, userId });
+  can(permission: string): boolean {
+    return this.state()?.user.permissions.includes(permission) ?? false;
+  }
+
+  set(session: AuthSession): void {
+    this.state.set(session);
     try {
-      localStorage.setItem(KEY, JSON.stringify({ token, userId }));
+      localStorage.setItem(KEY, JSON.stringify(session));
     } catch {
-      /* storage blocked: session lasts for this tab only */
+      /* storage blocked: the session lasts for this tab only */
     }
   }
 
@@ -27,9 +49,10 @@ export class SessionService {
     }
   }
 
-  private load(): { token: string; userId: string } | null {
+  private load(): AuthSession | null {
     try {
-      return JSON.parse(localStorage.getItem(KEY) ?? 'null');
+      const s = JSON.parse(localStorage.getItem(KEY) ?? 'null');
+      return s?.access_token && s?.refresh_token && s?.user ? s : null;
     } catch {
       return null;
     }

@@ -1,6 +1,6 @@
-import { Component, effect, inject } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { LiveEventsService, MetaService, SessionService, ToastService } from 'data-access';
+import { Component, computed, effect, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { AuthService, LiveEventsService, MetaService, SessionService, ToastService } from 'data-access';
 
 @Component({
   selector: 'app-root',
@@ -12,7 +12,7 @@ import { LiveEventsService, MetaService, SessionService, ToastService } from 'da
         <aside class="sidebar">
           <a routerLink="/" class="brand">Pulseboard</a>
           <nav aria-label="Main">
-            @for (item of nav; track item.path) {
+            @for (item of visibleNav(); track item.path) {
               <a [routerLink]="item.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: item.exact }">
                 <span aria-hidden="true">{{ item.icon }}</span> {{ item.label }}
               </a>
@@ -22,7 +22,7 @@ import { LiveEventsService, MetaService, SessionService, ToastService } from 'da
             <span class="live" [class.on]="live.connected()">
               <span class="dot"></span>{{ live.connected() ? 'Live updates on' : 'Reconnecting…' }}
             </span>
-            <span class="muted">Signed in as <strong>{{ session.userId() }}</strong></span>
+            <span class="muted"><strong>{{ session.user()?.display_name }}</strong> · {{ session.user()?.role?.toLowerCase() }}<br />{{ session.user()?.email }}</span>
             <button (click)="signOut()">Sign out</button>
           </div>
         </aside>
@@ -43,15 +43,17 @@ export class AppComponent {
   readonly live = inject(LiveEventsService);
   readonly toast = inject(ToastService);
   private readonly meta = inject(MetaService);
-  private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
 
-  readonly nav = [
-    { path: '/', label: 'Overview', icon: '◉', exact: true },
-    { path: '/boards', label: 'My boards', icon: '▦', exact: false },
-    { path: '/metrics', label: 'Metric catalog', icon: '≡', exact: false },
-    { path: '/activity', label: 'Activity', icon: '↻', exact: false },
-    { path: '/setup', label: 'Setup assistant', icon: '✦', exact: false },
+  readonly nav: { path: string; label: string; icon: string; exact: boolean; permission: string }[] = [
+    { path: '/', label: 'Overview', icon: '◉', exact: true, permission: '' },
+    { path: '/boards', label: 'My boards', icon: '▦', exact: false, permission: '' },
+    { path: '/metrics', label: 'Metric catalog', icon: '≡', exact: false, permission: '' },
+    { path: '/activity', label: 'Activity', icon: '↻', exact: false, permission: '' },
+    { path: '/setup', label: 'Setup assistant', icon: '✦', exact: false, permission: '' },
+    { path: '/users', label: 'Users', icon: '☺', exact: false, permission: 'users:read' },
   ];
+  readonly visibleNav = computed(() => (this.session.user(), this.nav.filter((n) => !n.permission || this.session.can(n.permission))));
 
   constructor() {
     effect(() => {
@@ -65,8 +67,7 @@ export class AppComponent {
   }
 
   signOut(): void {
-    this.session.clear();
     this.meta.meta.set(null);
-    this.router.navigate(['/sign-in']);
+    this.auth.logout();
   }
 }

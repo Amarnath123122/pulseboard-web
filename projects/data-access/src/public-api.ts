@@ -6,3 +6,4 @@ export * from './lib/live-events.service';
 export * from './lib/auth.interceptor';
 export * from './lib/meta.service';
 export * from './lib/toast.service';
+export * from './lib/auth.service';

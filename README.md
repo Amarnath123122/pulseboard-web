@@ -40,3 +40,10 @@ To run the full stack (Postgres, Redis, mock SQS, API and UI), use `docker compo
 ## CI/CD (GitHub Actions)
 - **`ci.yml`** runs on every push: `npm ci`, the app build, the library build, then the Docker image build.
 - **`deploy.yml`** builds once, writes `config.json` from the repo variables `API_URL` and `WS_URL`, then uploads to Azure Static Web Apps. It's skipped until those variables and the `AZURE_STATIC_WEB_APPS_API_TOKEN` secret are set.
+
+## Authentication (version 3)
+- **Sign-in and accounts:** sign in, or create an account, against `pulseboard-identity` through the gateway.
+- **Token refresh:** the interceptor refreshes the 15-minute access token automatically. It's single-flight, so concurrent 401s share one refresh. If the refresh fails, you're signed out.
+- **Role-aware UI:** the Users page is admin-only, the metric catalog is read-only for viewers, and route guards apply the same rules.
+- **`config.json`** now has `apiUrl`, `authUrl` and `wsUrl`.
+- **`npm start`** uses `proxy.conf.json` as a local gateway: identity on :8100, api on :8000.

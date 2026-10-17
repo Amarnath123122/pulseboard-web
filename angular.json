@@ -101,7 +101,11 @@
               "buildTarget": "pulseboard:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+          "options": {
+            "proxyConfig": "projects/pulseboard/proxy.conf.json",
+            "port": 5173
+          }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",

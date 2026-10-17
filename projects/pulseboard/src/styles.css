@@ -121,3 +121,10 @@ tr.clickable { cursor: pointer; } tr.clickable:hover td { background: var(--bg);
 .hint { margin: 4px 0 16px; }
 .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: .85em; color: var(--muted); margin-bottom: 8px; }
 .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+
+/* ---------- Auth ---------- */
+.auth h1 { margin-bottom: 4px; }
+.tabs { display: flex; gap: 4px; margin: 20px 0 16px; border-bottom: 1px solid var(--border); }
+.tabs button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none; padding: 8px 14px; }
+.tabs button.on { border-bottom-color: var(--accent); color: var(--accent); font-weight: 600; }
+.roles summary { cursor: pointer; font-weight: 600; } .roles p { margin: 6px 0; }

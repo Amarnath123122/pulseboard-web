@@ -1,41 +1,66 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ApiService, SessionService } from 'data-access';
+import { AuthService } from 'data-access';
 
-/** Demo sign-in. Swap for your identity provider (e.g. Entra ID) in production. */
 @Component({
   standalone: true,
   imports: [FormsModule],
   template: `
-    <section class="page narrow">
+    <section class="page narrow auth">
       <h1>Pulseboard</h1>
-      <p class="muted">Your metrics, watched for you. Sign in with any user ID. Each ID gets its own boards, so use the same one to come back to your data.</p>
-      <form class="stack" (ngSubmit)="submit()">
-        <label>User ID <input name="userId" [(ngModel)]="userId" required pattern="[A-Za-z0-9_.@-]+" /></label>
-        <button class="primary" [disabled]="busy()">Sign in</button>
-        @if (error()) { <p class="error">{{ error() }}</p> }
+      <p class="muted">Your business metrics, watched for you.</p>
+
+      <div class="tabs" role="tablist">
+        <button role="tab" [class.on]="mode() === 'login'" (click)="switch('login')">Sign in</button>
+        <button role="tab" [class.on]="mode() === 'register'" (click)="switch('register')">Create account</button>
+      </div>
+
+      <form class="stack" (ngSubmit)="submit()" #f="ngForm">
+        @if (mode() === 'register') {
+          <label>Your name <input name="name" [(ngModel)]="name" required maxlength="120" autocomplete="name" /></label>
+        }
+        <label>Email <input name="email" type="email" [(ngModel)]="email" required email autocomplete="email" /></label>
+        <label>Password
+          <input name="password" type="password" [(ngModel)]="password" required
+                 [minlength]="mode() === 'register' ? 10 : 1"
+                 [autocomplete]="mode() === 'register' ? 'new-password' : 'current-password'" />
+        </label>
+        @if (mode() === 'register') { <span class="muted small">At least 10 characters. New accounts start as Viewer; an admin can upgrade you.</span> }
+        <button class="primary" [disabled]="busy() || f.invalid">{{ mode() === 'login' ? 'Sign in' : 'Create account' }}</button>
+        @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
       </form>
     </section>
   `,
 })
 export class SignInPage {
-  private readonly api = inject(ApiService);
-  private readonly session = inject(SessionService);
+  private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
-  userId = 'demo';
+  readonly mode = signal<'login' | 'register'>('login');
   readonly busy = signal(false);
   readonly error = signal<string | null>(null);
+  name = '';
+  email = '';
+  password = '';
+
+  switch(mode: 'login' | 'register'): void {
+    this.mode.set(mode);
+    this.error.set(null);
+  }
 
   submit(): void {
     this.busy.set(true);
-    this.api.signIn(this.userId.trim()).subscribe({
-      next: (r) => {
-        this.session.set(r.access_token, r.user_id);
-        this.router.navigate(['/']);
-      },
-      error: (e) => {
-        this.error.set(e?.error?.error?.message ?? 'Sign-in failed. Is the API running?');
+    this.error.set(null);
+    const req = this.mode() === 'login'
+      ? this.auth.login(this.email.trim(), this.password)
+      : this.auth.register(this.email.trim(), this.password, this.name.trim());
+    req.subscribe({
+      next: () => this.router.navigate(['/']),
+      error: (e: HttpErrorResponse) => {
+        const body = e.error?.error;
+        const detail = Array.isArray(body?.details) ? body.details.map((d: any) => d.msg).join('; ') : '';
+        this.error.set(detail || body?.message || (e.status === 0 ? 'Cannot reach the server.' : 'Sign-in failed.'));
         this.busy.set(false);
       },
     });
