@@ -11,7 +11,8 @@ projects/
 ## Pages
 | Route | Page |
 |---|---|
-| `/sign-in` | Demo sign-in |
+| `/sign-in` | Sign in or create an account (identity service) |
+| `/users` | Admin only: search users, change roles, activate or deactivate |
 | `/` | Overview board: alerts first, live updates |
 | `/boards` | My boards: search, filter by kind, pagination |
 | `/boards/:id` | Detail or briefing board |
@@ -35,7 +36,7 @@ To point at another API, edit `projects/pulseboard/public/config.json`.
 docker build -t pulseboard-web .
 docker run -p 8080:8080 -e API_URL=http://localhost:8000 -e WS_URL=ws://localhost:8000/ws/events pulseboard-web
 ```
-To run the full stack (Postgres, Redis, mock SQS, API and UI), use `docker compose up --build` in `pulseboard-api`.
+To run the full system (gateway, identity, API, web, Postgres, Redis and mock SQS), use `docker compose up --build` in `pulseboard-platform`.
 
 ## CI/CD (GitHub Actions)
 - **`ci.yml`** runs on every push: `npm ci`, the app build, the library build, then the Docker image build.
