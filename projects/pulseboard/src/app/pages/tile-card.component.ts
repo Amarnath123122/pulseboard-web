@@ -113,7 +113,8 @@ export class TileCardComponent {
     if (unit === '%') return `${v.toFixed(v >= 99 ? 2 : 1)}%`;
     if (unit === 'USD') return v >= 1e6 ? `$${(v / 1e6).toFixed(2)}M` : `$${(v / 1e3).toFixed(0)}K`;
     if (unit === 'x') return `${v.toFixed(2)}×`;
-    return `${v >= 100 ? Math.round(v).toLocaleString() : v.toFixed(1)} ${unit}`;
+    const whole = v >= 100 || Number.isInteger(v); // counts (e.g. tickets) arrive as whole numbers
+    return `${whole ? Math.round(v).toLocaleString() : v.toFixed(1)} ${unit}`;
   }
 
   mark(state: FollowUp): void {
